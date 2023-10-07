@@ -2,7 +2,11 @@ import requests
 import base64
 import json
 import argparse
+import dotenv
+import os
 
+dotenv.load_dotenv()
+git_token=os.getenv("GITHUB_TOKEN")
 
 
 parser = argparse.ArgumentParser(description='Enter user id.')
@@ -14,11 +18,11 @@ parser.add_argument('--id', metavar='N', type=str,
 args = parser.parse_args()
 id_ = args.id
 # Your personal access token
-token = input("Enter your GitHub token: ")
+
 
 # Set up the headers for your requests, including your token for authorization
 headers = {
-    "Authorization": f"token {token}",
+    "Authorization": f"token {git_token}",
     "Accept": "application/vnd.github.v3+json",
 }
 
