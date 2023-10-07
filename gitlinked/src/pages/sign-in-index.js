@@ -2,7 +2,10 @@ import React from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function Home() {
-  const [session] = useSession();
+  const sessionInfo = useSession();
+  console.log(sessionInfo);
+  const [session] = sessionInfo;
+
   return (
     <div>
       <h1>Github OAuth Demo</h1>
