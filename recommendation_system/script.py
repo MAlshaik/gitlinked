@@ -1,7 +1,7 @@
 import pandas as pd
 from node2vec import Node2Vec
 import networkx as nx
-from sample_data import users, repositories, relationships
+from sample_data import sample_users, sample_repositories, sample_relationships
 
 
 
@@ -20,7 +20,7 @@ def create_graph(users, repositories, relationships):
 
 
 if __name__ == "__main__":
-    G = create_graph(users, repositories, relationships)
+    G = create_graph(sample_users, sample_repositories, sample_relationships)
     n2v = Node2Vec(G, dimensions=64, walk_length=30, num_walks=200, workers=4)
     model = n2v.fit(window=10, min_count=1, batch_words=4)
 

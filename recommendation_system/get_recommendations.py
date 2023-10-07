@@ -1,4 +1,4 @@
-from sample_data import repositories, users, relationships
+from sample_data import sample_repositories, sample_users, sample_relationships
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
@@ -11,31 +11,60 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 
+
+
+class Database:
+
+    def __init__(self):
+        pass
+
+    def get_user(self, user_id):
+        return [i for i in sample_users if i["id"] == user_id][0]
+    
+    
+    def save_user_description_embedding(self, user_id, embedding):
+        pass
+    
+    def get_repository(self, repository_id):
+        return [i for i in sample_repositories if i["id"] == repository_id][0]
+    
+    def save_repository_description_embedding(self, repository_id, embedding):
+        pass
+    
+
+    def get_users(self):
+        return sample_users
+    
+    def get_repositories(self):
+        return sample_repositories
+
+
+
+
+
 class User:
-    def __init__(self, data):
-        self.id = data["id"]
-        self.description = data["description"]
-        self.skills = data["skills"]
+    def __init__(self, user_data, db: Database):
+        self.id = user_data["id"]
+        self.description = user_data["description"]
+        self.skills = user_data["skills"]
+
+        self.db = db
+
+        self._model = SentenceTransformer('all-MiniLM-L6-v2')
         
 
-    def embed_description(self, model: SentenceTransformer):
-        embedding = model.encode(self.description+" "+self.skills)
+    def embed_description(self):
+        embedding = self._model.encode(self.description+" "+self.skills)
         # save embedding to database
         return embedding
-    
 
-    def get(user_id):
-        user_data = [i for i in users if i["id"] == user_id][0]
-        return User(user_data)
-    
 
-    def get_repository_matches(self, model: SentenceTransformer):
-        user = User.get(self.id)
-        user_embedding = user.embed_description(model)
+    def get_repository_matches(self):
+        user_embedding = self.embed_description()
 
-        all_repositories = [Repository.get(i["id"]) for i in repositories]
+        all_repositories = [Repository(i, self.db) for i in self.db.get_repositories()]
 
-        repository_embeddings = pd.DataFrame([i.embed_description(model) for i in all_repositories], index=[i.id for i in all_repositories])
+        repository_embeddings = pd.DataFrame([i.embed_description() for i in all_repositories], index=[i.id for i in all_repositories])
 
         user_to_repo_similarity = cosine_similarity([user_embedding], repository_embeddings)
         
@@ -46,30 +75,32 @@ class User:
 
 
 
-
 class Repository:
-    def __init__(self, data):
-        self.id = data["id"]
-        self.description = data["description"]
-        self.languages = data["languages"]
+    def __init__(self, repo_data, db: Database):
+        self.id = repo_data["id"]
+        self.description = repo_data["description"]
+        self.languages = repo_data["languages"]
 
-    def get(repository_id):
-        repository_data = [i for i in repositories if i["id"] == repository_id][0]
-        return Repository(repository_data)
+        self.db = db
+
+        self._model = SentenceTransformer('all-MiniLM-L6-v2')
+
+    # def get(repository_id):
+    #     repository_data = self.db.get_repository(repository_id)
+    #     return Repository(repository_data)
 
 
-    def embed_description(self, model: SentenceTransformer):
-        embedding = model.encode(self.description+" "+self.languages)
+    def embed_description(self):
+        embedding = self._model.encode(self.description+" "+self.languages)
         # save embedding to database
         return embedding
     
-    def get_user_matches(self, model: SentenceTransformer):
-        repository = Repository.get(self.id)
-        repository_embedding = repository.embed_description(model)
+    def get_user_matches(self):
+        repository_embedding = self.embed_description()
 
-        all_users = [User.get(i["id"]) for i in users]
+        all_users = [User(i, self.db) for i in self.db.get_users()]
 
-        user_embeddings = pd.DataFrame([i.embed_description(model) for i in all_users], index=[i.id for i in all_users])
+        user_embeddings = pd.DataFrame([i.embed_description() for i in all_users], index=[i.id for i in all_users])
 
         # print(user_embeddings)
         repo_to_users_similarity = cosine_similarity([repository_embedding], user_embeddings)
@@ -83,7 +114,7 @@ class Repository:
 class TextParser:
 
     def __init__(self, model: SentenceTransformer):
-        self.model = model
+        self._model = model
 
 
     def remove_stopwords(self, text):
@@ -114,18 +145,17 @@ class TextParser:
         return df.index.tolist()
         
         
-        
 
 
 def get_recommendations_by_desc(user_id=None, repository_id=None):
 
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    db = Database()
 
     if (repository_id):
-        return Repository.get(repository_id).get_user_matches(model)
+        return Repository(db.get_repository(repository_id), db).get_user_matches()
     
     elif (user_id):
-        return User.get(user_id).get_repository_matches(model)
+        return User(db.get_user(user_id), db).get_repository_matches()
 
 
 

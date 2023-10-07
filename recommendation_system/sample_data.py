@@ -1,6 +1,6 @@
 
 
-users = [{
+sample_users = [{
     "id": "user1",
     "description": "data scientist, Topological data analysis",
     "skills": "jupyter notebook, data science",
@@ -20,7 +20,7 @@ users = [{
 
 
 
-repositories = [{
+sample_repositories = [{
     "id": "repository1",
     "languages": "python",
     "description": "language",
@@ -44,7 +44,7 @@ repositories = [{
 
 
 
-relationships = [[
+sample_relationships = [[
     "user1",
     "repository1"
 ], [
