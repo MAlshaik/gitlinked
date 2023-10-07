@@ -85,4 +85,4 @@ export default (req, res) =>
       
         return data;
       }
-      
+
