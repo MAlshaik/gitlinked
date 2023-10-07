@@ -4,6 +4,7 @@ export default function SignIn() {
   const { data: session } = useSession();
 
   if (session) {
+    console.log(session);
     return (
       <div>
         You are already signed in! <a href="/">Go back to home.</a>
