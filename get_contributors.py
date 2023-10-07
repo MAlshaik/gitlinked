@@ -32,8 +32,9 @@ readme_content = base64.b64decode(readme_data['content']).decode(
 # Gather contributors data
 contributors_url = f"https://api.github.com/repos/{repo_name}/contributors"
 contributors_response = requests.get(contributors_url, headers=headers)
-contributors_data = ([item["login"]
-                      for item in contributors_response.json()])
+contributors_data = [(item["login"], item["id"])
+                     for item in contributors_response.json()]
+
 
 # Organize data
 output_data = {
