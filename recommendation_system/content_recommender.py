@@ -38,10 +38,12 @@ class ContentRecommender:
         self.model = SentenceTransformer('all-MiniLM-L6-v2')
 
 
-    def embed_item_text(self, item: RecommendableItem):
+    def embed_item_text(self, item: RecommendableItem, features_to_use: t.List[str] = ["text"]):
         # uses tfidf to extract keywords from a list of words
 
-        filtered_text = self.remove_stopwords(item.text)
+        text = " ".join([getattr(item, i) for i in features_to_use])
+
+        filtered_text = self.remove_stopwords(text)
         
         nltk.download('punkt')
         nltk.download('stopwords')
@@ -58,14 +60,16 @@ class ContentRecommender:
     
 
 
-    def recommend_items_for_item(self, item: RecommendableItem, type_to_recommend: str):
+    def recommend_items_for_item(self, item: RecommendableItem, type_to_recommend: str, 
+                                 features_of_item: t.List[str] = ["text"],
+                                 features_of_type_to_recommend: t.List[str] = ["text"]):
 
-        item_embedding =  self.embed_item_text(item)
+        item_embedding =  self.embed_item_text(item, features_of_item)
         all_other_items = self.db.get_all_items(type_to_recommend)
 
         print("ALL OTHER ITEMS", all_other_items)
 
-        other_item_embeddings = pd.DataFrame([self.embed_item_text(i) for i in all_other_items], index=[i.id for i in all_other_items])
+        other_item_embeddings = pd.DataFrame([self.embed_item_text(i, features_of_type_to_recommend) for i in all_other_items], index=[i.id for i in all_other_items])
         similarities = cosine_similarity([item_embedding], other_item_embeddings)
         
         # return a dataframe with one column where rows are each other item and it's associated score

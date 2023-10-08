@@ -1,3 +1,4 @@
+import typing as t
 from sample_data import sample_repositories, sample_users, sample_relationships
 from sentence_transformers import SentenceTransformer
 from content_recommender import RecommendableItem, ContentRecommender, GeneralContentDatabase
@@ -11,6 +12,7 @@ class User(RecommendableItem):
         self.description = user_data.get("description") or ""
         self.interest = user_data.get("interest") or ""
         self.skills = user_data.get("skills") or ""
+        self.availability = user_data.get("availability") or ""
 
         text = " ".join([self.description, self.interest, self.skills])
 
@@ -36,20 +38,6 @@ class Repository(RecommendableItem):
     def __repr__(self):
         return f"Repository {self.id} with description \"{self.description}\""
 
-
-
-def recommend_repos_for_user(user_id: str, db: GeneralContentDatabase, search_prompt: str = None):
-    user = db.get_item("user", user_id)
-    
-    if search_prompt:
-        user.text = user.text + " " + search_prompt
-
-    return ContentRecommender(db).recommend_items_for_item(user, "repository")
-
-
-def recommend_users_for_repo(repository_id: str, db: GeneralContentDatabase):
-    repository = db.get_item("repository", repository_id)
-    return ContentRecommender(db).recommend_items_for_item(repository, "user")
 
 
 
