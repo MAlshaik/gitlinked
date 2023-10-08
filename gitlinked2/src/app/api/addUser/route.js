@@ -10,13 +10,14 @@ export async function POST(req){
     }
     */
     
+    Sentry.captureMessage('hello from addUser');
+    
     const { data, error } = await supabase
       .from('users')
       .insert([
         {id: body.id,  username:body.username},
       ]);
-    throw new Error('hello to sentry'); 
-    Sentry.captureMessage('User data: '+data);
+
 
     if (error) {
       console.error('Error inserting user:', error);
