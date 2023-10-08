@@ -2,25 +2,27 @@ import pandas as pd
 from node2vec import Node2Vec
 import networkx as nx
 from sample_data import sample_users, sample_repositories, sample_relationships
+from database import Database
 import typing
 
 
 
+def get_network_relationships(db: Database):
+    all_users = db.get_users()
+    all_repositories = db.get_repositories()
 
 
 
-def create_graph(relationships: typing.List[tuple[str, str]], users, repositories, tags=[]):
+def create_graph(relationships: typing.List[tuple[str, str]], user_ids, repository_ids, tag_ids=[]):
     G = nx.Graph()
-    for user in users:
-        G.add_node("user-"+user["id"])
-    for repository in repositories:
-        G.add_node("repository-"+repository["id"])
-    for tag in tags:
-        G.add_node("tag-"+tag["id"])
+    for user_id in user_ids:
+        G.add_node("user-"+user_id["id"])
+    for repository_id in repository_ids:
+        G.add_node("repository-"+repository_id["id"])
+    for tag_id in tag_ids:
+        G.add_node("tag-"+tag_id["id"])
     for relationship in relationships:
         G.add_edge(*[i[0]+"-"+i[1] for i in relationship])
-
-    print(G.nodes(data=True))
 
     return G
 
@@ -33,10 +35,5 @@ if __name__ == "__main__":
     # return a dataframe of repositories
 
     print(model.wv.most_similar("user-1"))
-
-
-
-
-
 
 

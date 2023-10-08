@@ -40,84 +40,67 @@ class Database:
 
 
 class User:
-    def __init__(self, user_data: object, db: Database):
-        print("user_data", user_data)
+    def __init__(self, user_data: object):
         self.id = user_data["id"]
         self.description = user_data["description"]
         self.skills = user_data["skills"]
 
-        self.db = db
-
-
-    def get_repository_matches(self):
-        user_embedding =  embed_user_text(self, self.db)
-
-        all_repositories = self.db.get_repositories()
-
-        repository_embeddings = pd.DataFrame([embed_repository_text(i, self.db) for i in all_repositories], index=[i.id for i in all_repositories])
-
-        user_to_repo_similarity = cosine_similarity([user_embedding], repository_embeddings)
-        
-        # return a dataframe with one column where rows are each repository and it's associated score
-        return pd.DataFrame(user_to_repo_similarity.T, index=repository_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
-
-
-
-    def get_description(self):
-        return self.description+" "+self.skills
-
 
 
 class Repository:
-    def __init__(self, repo_data: object, db: Database):
-        print(repo_data)
+    def __init__(self, repo_data: object):
         self.id = repo_data["id"]
         self.description = repo_data["description"]
         self.languages = repo_data["Languages"]
 
-        self.db = db
-
-
-    def get_user_matches(self):
-        repository_embedding = embed_repository_text(self, self.db)
-
-        all_users = self.db.get_users()
-
-        user_embeddings = pd.DataFrame([embed_user_text(i, self.db) for i in all_users], index=[i.id for i in all_users])
-
-        repo_to_users_similarity = cosine_similarity([repository_embedding], user_embeddings)
-
-        # return a dataframe  with one column where rows are each user and it's associated score
-        return pd.DataFrame(repo_to_users_similarity.T, index=user_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
-
-    def get_description(self):
-        return self.description+" "+(self.languages or "")
-
-
-
-def embed_user_text(user: User, db: Database):
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-
-    embedding = model.encode(user.get_description())
-    db.save_user_description_embedding(user.id, embedding)
-    return embedding
-
-
-def embed_repository_text(repository: Repository, db: Database):
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    embedding = model.encode(repository.get_description())
-    db.save_repository_description_embedding(repository.id, embedding)
-    return embedding
 
 
 
 
 
-class TextParser:
+def recommend_repos_for_user(user: User, db: Database):
+    user_embedding =  ContentBasedRecommendation.embed_user_text(user, db)
+    all_repositories = db.get_repositories()
+    repository_embeddings = pd.DataFrame([ContentBasedRecommendation.embed_repository_text(i, self.db) for i in all_repositories], index=[i.id for i in all_repositories])
+    user_to_repo_similarity = cosine_similarity([user_embedding], repository_embeddings)
+    
+    # return a dataframe with one column where rows are each repository and it's associated score
+    return pd.DataFrame(user_to_repo_similarity.T, index=repository_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
+
+
+
+
+
+def recommend_users_for_repo(repository: Repository, db: Database):
+    repository_embedding = ContentBasedRecommendation.embed_repository_text(repository, db)
+    all_users = db.get_users()
+    user_embeddings = pd.DataFrame([ContentBasedRecommendation.embed_user_text(i, db) for i in all_users], index=[i.id for i in all_users])
+    repo_to_users_similarity = cosine_similarity([repository_embedding], user_embeddings)
+
+    # return a dataframe  with one column where rows are each user and it's associated score
+    return pd.DataFrame(repo_to_users_similarity.T, index=user_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
+
+
+
+
+class ContentBasedRecommendation:
 
     def __init__(self, model: SentenceTransformer, database: Database):
         self._model = model
         self._db = database
+
+    def embed_user_text(user: User, db: Database):
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        embedding = model.encode(user.description+" "+user.skills)
+        db.save_user_description_embedding(user.id, embedding)
+        return embedding
+
+
+    def embed_repository_text(repository: Repository, db: Database):
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        embedding = model.encode(repository.description+" "+(repository.languages or ""))
+        db.save_repository_description_embedding(repository.id, embedding)
+        return embedding
 
 
     def remove_stopwords(self, text):

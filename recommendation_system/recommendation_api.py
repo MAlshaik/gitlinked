@@ -10,6 +10,10 @@ def get_repositories_for_user(user_data):
 
 
 
+def get_network_recommendations_for_user(user_id):
+
+    pass
+
 
 
 if __name__ == "__main__":
@@ -19,7 +23,7 @@ if __name__ == "__main__":
     result = get_repositories_for_user({
         "id": "computer science guy",
         "description": "I work with assembly",
-        "skills": "python, javascript"
+        # "skills": "python, javascript"
     })
 
 
