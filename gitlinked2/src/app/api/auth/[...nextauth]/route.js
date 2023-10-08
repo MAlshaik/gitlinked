@@ -2,7 +2,10 @@ import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import supabase from "../../../supabaseClient";
 const { spawn } = require('child_process');
+import * as Sentry from "@sentry/nextjs"
 
+
+Sentry.captureMessage("hello from route.js");
 export const authOptions = {
 
         providers: [
