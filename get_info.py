@@ -50,7 +50,7 @@ for repository in data:
         readme_content = ""
 
     repos_data.append({
-        "Repository": repository_name,
+        "Repository": github_username + "/" + repository_name,
         "Languages": languages_data,
         "Description": repository_description,
         "README": readme_content
