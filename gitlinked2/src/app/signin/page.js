@@ -8,7 +8,6 @@ export default function SignIn() {
   return (
     <div>
       <h1>Github OAuth Demo</h1>
-      <SessionProvider>
       {!session ? (
         <>
           <button onClick={() => signIn("github")}>
@@ -24,7 +23,6 @@ export default function SignIn() {
           <button onClick={() => signOut()}>Logout</button> <br />
         </>
       )}
-      </SessionProvider>
     </div>
   );
 }
