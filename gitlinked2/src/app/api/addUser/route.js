@@ -1,7 +1,8 @@
 import supabase from "../../supabaseClient";
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
-const handler = async (req) => {
+
+export async function POST(req){
     const body = await req.json()
     /*
     if (req.method !== 'POST') {
@@ -24,6 +25,5 @@ const handler = async (req) => {
   
     return NextResponse.json({ success: true });
     
-};
+}
 
-export default withSentry(handler);
