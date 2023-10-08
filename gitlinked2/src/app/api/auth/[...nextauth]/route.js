@@ -7,6 +7,7 @@ export const authOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
+      redirectUri: process.env.GITHUB_REDIRECT_URI,
     }),
   ],
     secret: process.env.AUTH_SECRET,
