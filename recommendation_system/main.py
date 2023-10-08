@@ -34,14 +34,14 @@ def get_users_for_repository_by_content(repository_id: str):
 
 def get_network_recommendations_for_item(user_id: str, item_type: str):
     '''
-    Given a user id, return a list of repositories that are recommended
-    based on the network of users and repositories surrounding that user
+    Given a user id, return a list of recommended repos and users based on 
+    the network of users and repositories surrounding that user
     using the graph embedding approach
     '''
     db = SupabaseNetworkDatabase()
-    result = find_close_items(db, user_id, item_type)
+    top_repositories, top_users = find_close_items(db, user_id, item_type)
 
-    return result
+    return top_repositories, top_users
 
 
 

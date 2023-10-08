@@ -10,7 +10,12 @@ class GraphNode:
         self.item_id = item_id
         self.type = item_type
 
-        self.id = self.type + self.item_id
+        self.id = self.type + " " + self.item_id
+
+    def id_to_type_and_item_id(id: str) -> t.List[str]:
+        # returns a list of [type, id] from the id string
+        return id.split(" ")
+
 
     def __repr__(self):
         return f"GraphNode({self.item_id}, {self.type})"

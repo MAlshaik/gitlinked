@@ -2,6 +2,7 @@ import typing as t
 from network_recommender import get_most_similar_nodes, GraphNode, GraphRelationship
 from network_database import SupabaseNetworkDatabase
 import enum
+import pandas as pd
 
 
 
@@ -36,11 +37,6 @@ def get_all_relationships(db: SupabaseNetworkDatabase) -> t.List[GraphRelationsh
     return []
 
 
-
-
-
-
-
     # Get relationships between repositories and their owners    
     # Get the relationships between users and their owned repositories
 
@@ -48,7 +44,7 @@ def get_all_relationships(db: SupabaseNetworkDatabase) -> t.List[GraphRelationsh
 
 
 
-def find_close_items(db: SupabaseNetworkDatabase, item_id, item_type):
+def find_close_items(db: SupabaseNetworkDatabase, item_id, item_type, top_n=10) -> t.Tuple[pd.DataFrame, pd.DataFrame]):
 
     most_similar_nodes = get_most_similar_nodes(
         get_all_nodes(db),
@@ -57,12 +53,14 @@ def find_close_items(db: SupabaseNetworkDatabase, item_id, item_type):
         item_type,
     )
 
-    return most_similar_nodes
+    df = pd.DataFrame([GraphNode.id_to_type_and_item_id(i[0]) + list(i)[1:] for i in most_similar_nodes],
+        columns=["type", "id", "similarity"]).sort_values(by="similarity", ascending=False)
 
+    # split the dataframe into two, based on type
+    df_users = df[df["type"] == NodeType.USER.value]
+    df_repositories = df[df["type"] == NodeType.REPOSITORY.value]
 
+    # return the first n columns of each dataframe
 
+    return df_users.head(top_n), df_repositories.head(top_n)
 
-def network_test():
-
-
-    find_close_items("1", "user")
