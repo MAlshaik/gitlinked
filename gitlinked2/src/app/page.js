@@ -17,6 +17,9 @@ export default function Home() {
 
     const search = event.target[0]['value']
 
+
+    
+
     if(search){
       push(`/main`)
     }
