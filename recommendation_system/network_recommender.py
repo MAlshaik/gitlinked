@@ -1,6 +1,7 @@
 import typing as t
 from node2vec import Node2Vec
 import networkx as nx
+import sys, os
 
 
 
@@ -10,6 +11,9 @@ class GraphNode:
         self.type = item_type
 
         self.id = self.type + self.item_id
+
+    def __repr__(self):
+        return f"GraphNode({self.item_id}, {self.type})"
 
 
 
@@ -21,8 +25,9 @@ class GraphRelationship:
 
 
 
-
 def _train_embedding_model(all_relationships: t.List[GraphRelationship], all_nodes: t.List[GraphNode]):
+
+    print(all_nodes)
 
     G = nx.Graph()
     for node in all_nodes:
@@ -30,6 +35,7 @@ def _train_embedding_model(all_relationships: t.List[GraphRelationship], all_nod
     for relationship in all_relationships:
         G.add_edge(relationship.node1_id, relationship.node2_id)
 
+    print(G.nodes)
 
     n2v = Node2Vec(G, dimensions=64, walk_length=30, num_walks=200, workers=4)
     model = n2v.fit(window=10, min_count=1, batch_words=4)
@@ -39,13 +45,14 @@ def _train_embedding_model(all_relationships: t.List[GraphRelationship], all_nod
 
 
 
-def get_most_similar_nodes(all_nodes: t.List[GraphNode], all_relationships: t.List[GraphRelationship], node_id, topn=10):
-
+def get_most_similar_nodes(all_nodes: t.List[GraphNode], all_relationships: t.List[GraphRelationship], item_id: str, item_type: str, topn=10):
 
     model = _train_embedding_model(all_relationships, all_nodes)
 
+    node_id = GraphNode(item_id, item_type).id
 
     return model.wv.most_similar(node_id, topn=topn)
+    
 
 
 

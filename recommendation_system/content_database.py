@@ -1,10 +1,11 @@
-from recommendation_system.content_recommendation.use_content_recommender import User, Repository
-from content_recommender import RecommendableItem, ContentDatabase
 import typing as t
-from recommendation_system.supabase_base import SupabaseDatabase
+from use_content_recommender import User, Repository
+from content_recommender import RecommendableItem, GeneralContentDatabase
+from supabase_base import SupabaseDatabase
 
 
-class SupabaseContentDatabase(ContentDatabase):
+
+class SupabaseContentDatabase(GeneralContentDatabase):
 
     def __init__(self):
         super().__init__()
@@ -14,9 +15,9 @@ class SupabaseContentDatabase(ContentDatabase):
 
     def get_all_items(self, type: str) -> t.List[RecommendableItem]:
         if type == "user":
-            return self.get_users()
+            return self.get_recommendable_users()
         elif type == "repository":
-            return self.get_repositories()
+            return self.get_recommendable_repositories()
         
 
     def get_item(self, type: str, item_id: str) -> RecommendableItem:
@@ -26,17 +27,16 @@ class SupabaseContentDatabase(ContentDatabase):
             return self.get_repository(item_id)
 
 
-    def get_users(self) -> t.List[User]:
-        users = self.client.table("users").select("*").execute().data
-        return [User(i) for i in users]
+    def get_recommendable_users(self) -> t.List[User]:
+        result = [User(i) for i in self.get_all_users()]
+        return result
 
-    def get_repositories(self) -> t.List[Repository]:
-        repositories = self.client.table("repo").select("*").execute().data
-        return [Repository(i) for i in repositories]
+    def get_recommendable_repositories(self) -> t.List[Repository]:
+        return [Repository(i) for i in self.get_all_repos()]
 
 
     def get_user(self, user_id) -> User:
-        user_data = self.client.table("users").select("*").eq("id", user_id).execute().data[0]
+        user_data = self.client.table("users_descriptive").select("*").eq("id", user_id).execute().data[0]
         return User(user_data)
 
 
