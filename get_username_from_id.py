@@ -11,7 +11,7 @@ headers = {
 }
 
 # Specify the User ID
-user_id = 56054023  # replace with the actual user ID
+user_id = 3440094  # replace with the actual user ID
 
 # API URL to grab user information by ID
 api_url = f"https://api.github.com/user/{user_id}"
