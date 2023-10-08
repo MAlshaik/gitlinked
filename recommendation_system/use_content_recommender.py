@@ -40,18 +40,6 @@ class Repository(RecommendableItem):
 
 
 
-def recommend_repos_for_user(user_id: str, db: GeneralContentDatabase,
-                             user_features: t.List[str] = ["description", "interest", "skills"],
-                             repo_features: t.List[str] = ["description", "languages"]):
-
-
-def recommend_users_for_repo(repository_id: str, db: GeneralContentDatabase,
-                             user_features: t.List[str] = ["description", "interest", "skills"],
-                             repo_features: t.List[str] = ["description", "languages"]):
-    repository = db.get_item("repository", repository_id)
-    return ContentRecommender(db).recommend_items_for_item(repository, "user", repo_features, user_features)
-
-
 
 
 def content_test():

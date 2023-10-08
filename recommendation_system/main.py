@@ -1,6 +1,5 @@
 from content_database import SupabaseContentDatabase
 from network_database import SupabaseNetworkDatabase
-from use_content_recommender import recommend_users_for_repo, recommend_repos_for_user, User, Repository, content_test
 from content_recommendation import ContentRecommender
 from use_network_recommender import find_close_items
 from dotenv import load_dotenv
