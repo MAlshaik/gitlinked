@@ -4,27 +4,47 @@ import networkx as nx
 from sample_data import sample_users, sample_repositories, sample_relationships
 from database import Database
 import typing
+import enum
 
+
+
+
+class GraphNode:
+    def __init__(self, node_id: str):
+        self.node_id = node_id
+
+class GraphRelationship:
+    def __init__(self, node1: GraphNode, node2: GraphNode):
+        self.node1_id = node1.node_id
+        self.node2_id = node2.node_id
+
+
+def create_graph(
+        relationships: typing.List[GraphRelationship],
+        nodes: typing.List[GraphNode]
+):
+    G = nx.Graph()
+    for node in nodes:
+        G.add_node(node.node_id)
+    for relationship in relationships:
+        G.add_edge(relationship.node1_id, relationship.node2_id)
+
+    return G
+
+
+
+class NodeType(enum.Enum):
+    USER = "user"
+    REPOSITORY = "repository"
+    TAG = "tag"
 
 
 def get_network_relationships(db: Database):
-    all_users = db.get_users()
-    all_repositories = db.get_repositories()
+    all_users = [GraphNode(NodeType.USER + i["id"], NodeType.USER) 
+                 for i in db.get_users()]
 
-
-
-def create_graph(relationships: typing.List[tuple[str, str]], user_ids, repository_ids, tag_ids=[]):
-    G = nx.Graph()
-    for user_id in user_ids:
-        G.add_node("user-"+user_id["id"])
-    for repository_id in repository_ids:
-        G.add_node("repository-"+repository_id["id"])
-    for tag_id in tag_ids:
-        G.add_node("tag-"+tag_id["id"])
-    for relationship in relationships:
-        G.add_edge(*[i[0]+"-"+i[1] for i in relationship])
-
-    return G
+    all_repositories = [GraphNode(NodeType.REPOSITORY + i["id"], NodeType.REPOSITORY) 
+                        for i in db.get_repositories()]
 
 
 if __name__ == "__main__":
@@ -35,5 +55,8 @@ if __name__ == "__main__":
     # return a dataframe of repositories
 
     print(model.wv.most_similar("user-1"))
+
+
+
 
 
