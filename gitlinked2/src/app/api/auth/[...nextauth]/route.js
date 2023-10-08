@@ -8,8 +8,8 @@ export const authOptions = {
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
     }),
-    // ...add more providers here
   ],
+    secret: process.env.AUTH_SECRET,
 }
 
 export const handler = NextAuth(authOptions);
