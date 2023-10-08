@@ -106,6 +106,10 @@ section.accordion {
   overflow: hidden;
   width: 50%;
 }
+
+.tab:hover{
+  box-shadow: var(--highlight) 0px 0px 10px 0px;
+}
 .tab input {
   position: absolute;
   opacity: 0;
@@ -198,9 +202,7 @@ section.accordion {
 	height: auto;
 	background-color: var(--primary);
 }
-.border{
-  border: 8px solid #666;
-}
+
 .round{
   border-radius: 30px;
 	-webkit-border-radius: 30px;

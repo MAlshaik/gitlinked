@@ -4,9 +4,9 @@ import Image from 'next/image';
 import Script from "next/script";
 import { useEffect } from 'react';
 import Header from '@/components/header'
-import Accordion from '@/components/accordion';
 import Drawer from '@/components/drawer';
 
+var fire = 0
 
 export default function Home() {
     useEffect(() => {
@@ -164,16 +164,49 @@ export default function Home() {
         );
       }, []);
 
+    useEffect(() => {
+      var repos = [
+        {
+          id: "cb1",
+          name: "GitLinked",
+          description: "Github based project built in Hackathon",
+          url: ""
+        },
+        {
+          id: "cb2",
+          name: "GitLinked",
+          description: "Github based project built in Hackathon",
+          url: ""
+        }
+      ]
+
+      const acc = document.getElementById("accordion");
+      acc.innerHTML = "";
+      
+      repos.map((repo) => {
+        acc.innerHTML += `
+        <div class="tab">
+        <input type="checkbox" name="accordion-1" id="${repo.id}"/>
+        <label for="${repo.id}" class="tab__label">${repo.name}</label>
+        <div class="tab__content">
+          <p>${repo.description}</p>
+        </div>
+        </div>
+        `;
+      });
+
+    }, []);
+
     return (
         <>
         <Header />
        <section class="bg-black-800 w-screen flex justify-center items-center">
       <ul
-        class="w-full md:w-3/4 m-2 lg:w-1/2 flex justify-between items-start mb-8 space-x-3 overflow-x-scroll stories bg-white p-4 rounded drop-shadow-xl"
+        class="w-full md:w-3/4 m-2 lg:w-1/2 flex justify-between items-start mb-8 space-x-3 overflow-x-scroll stories bg-purple-300 p-4 rounded drop-shadow-xl"
       >
       </ul>
     </section>
-    <Accordion />
+    <section class="accordion" id="accordion"></section>
     <Drawer />
     </>
     )
