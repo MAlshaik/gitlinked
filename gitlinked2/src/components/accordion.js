@@ -1,7 +1,7 @@
 export default function Header(){
     return (
       <>
-<section class="accordion">
+<section class="accordion" id="accordion">
   <div class="tab">
     <input type="checkbox" name="accordion-1" id="cb1"/>
     <label for="cb1" class="tab__label">GitLinked</label>
