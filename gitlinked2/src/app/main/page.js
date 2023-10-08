@@ -9,7 +9,11 @@ import Drawer from '@/components/drawer';
 var fire = 0
 
 export default function Home() {
+
     useEffect(() => {
+      var head = document.getElementsByTagName("head")[0]
+      head.getElementsByTagName("title")[0].innerHTML = "GitLinked"
+      // document.getElementsByTagName("head")[0]["outerText"] = "Main Page"
         const users = [
             {
               id: 1,

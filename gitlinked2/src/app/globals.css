@@ -32,6 +32,11 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+img#logo{
+  padding: 0%;
+  margin: 0%;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   --tw-border-spacing-x: 0;
