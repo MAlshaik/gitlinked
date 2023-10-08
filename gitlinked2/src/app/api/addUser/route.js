@@ -15,7 +15,7 @@ export async function POST(req){
       .insert([
         {id: body.id,  username:body.username},
       ]);
-    
+    throw new Error('hello to sentry'); 
     Sentry.captureMessage('User data: '+data);
 
     if (error) {
