@@ -1,4 +1,4 @@
-import supabase from "../supabaseClient";
+import supabase from "../../app/supabaseClient";
 
 export default async function updateUserSearchHist(req, res) {
     // First, ensure the request method is appropriate

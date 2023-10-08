@@ -1,6 +1,6 @@
-import supabase from "../supabaseClient";
+import supabase from "../../supabaseClient";
 
-export default async function getUser(req, res) {
+export default async function getUserDescriptive(req, res) {
   
   // Check if the method is POST
   if (req.method !== 'POST') {
@@ -8,7 +8,7 @@ export default async function getUser(req, res) {
   }
 
   const { data, error } = await supabase
-    .from('users')
+    .from('users_descriptive')
     .select('*')
     .eq('id', req.body.id)
     .single();
