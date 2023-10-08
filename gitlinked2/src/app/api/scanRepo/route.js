@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req) {
     const body = await req.json();
 
-    const pythonProcess = spawn('python', ['get_contributors.py', '--name', body.name]);
+    const pythonProcess = spawn('python', ['get_contributors.py', '--search_prompt', body.prompt]);
 
     let pythonOutput = '';
 
