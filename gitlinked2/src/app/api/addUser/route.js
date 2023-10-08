@@ -1,7 +1,6 @@
 import supabase from "../../supabaseClient";
 import { NextResponse } from "next/server";
-import { withSentry } from "@sentry/nextjs";
-
+import * as Sentry from "@sentry/nextjs";
 const handler = async (req) => {
     const body = await req.json()
     /*
@@ -15,7 +14,9 @@ const handler = async (req) => {
       .insert([
         {id: body.id,  username:body.username},
       ]);
-  
+    
+    Sentry.captureMessage('User data: '+data);
+
     if (error) {
       console.error('Error inserting user:', error);
       return NextResponse.send({ error: 'Error inserting user' });
