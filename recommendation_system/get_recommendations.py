@@ -12,7 +12,6 @@ nltk.download('stopwords')
 
 
 
-
 class Database:
 
     def __init__(self):
@@ -20,8 +19,7 @@ class Database:
 
     def get_user(self, user_id):
         return [i for i in sample_users if i["id"] == user_id][0]
-    
-    
+
     def save_user_description_embedding(self, user_id, embedding):
         pass
     
@@ -31,7 +29,6 @@ class Database:
     def save_repository_description_embedding(self, repository_id, embedding):
         pass
     
-
     def get_users(self):
         return sample_users
     
@@ -43,78 +40,84 @@ class Database:
 
 
 class User:
-    def __init__(self, user_data, db: Database):
+    def __init__(self, user_data: object, db: Database):
+        print("user_data", user_data)
         self.id = user_data["id"]
         self.description = user_data["description"]
         self.skills = user_data["skills"]
 
         self.db = db
 
-        self._model = SentenceTransformer('all-MiniLM-L6-v2')
-        
-
-    def embed_description(self):
-        embedding = self._model.encode(self.description+" "+self.skills)
-        # save embedding to database
-        return embedding
-
 
     def get_repository_matches(self):
-        user_embedding = self.embed_description()
+        user_embedding =  embed_user_text(self, self.db)
 
-        all_repositories = [Repository(i, self.db) for i in self.db.get_repositories()]
+        all_repositories = self.db.get_repositories()
 
-        repository_embeddings = pd.DataFrame([i.embed_description() for i in all_repositories], index=[i.id for i in all_repositories])
+        repository_embeddings = pd.DataFrame([embed_repository_text(i, self.db) for i in all_repositories], index=[i.id for i in all_repositories])
 
         user_to_repo_similarity = cosine_similarity([user_embedding], repository_embeddings)
         
-        # return a dataframe of repository ids and their similarity to the user
-        return pd.DataFrame(user_to_repo_similarity, columns=repository_embeddings.index.tolist(), index=[self.id])
+        # return a dataframe with one column where rows are each repository and it's associated score
+        return pd.DataFrame(user_to_repo_similarity.T, index=repository_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
 
 
+
+    def get_description(self):
+        return self.description+" "+self.skills
 
 
 
 class Repository:
-    def __init__(self, repo_data, db: Database):
+    def __init__(self, repo_data: object, db: Database):
+        print(repo_data)
         self.id = repo_data["id"]
         self.description = repo_data["description"]
-        self.languages = repo_data["languages"]
+        self.languages = repo_data["Languages"]
 
         self.db = db
 
-        self._model = SentenceTransformer('all-MiniLM-L6-v2')
 
-    # def get(repository_id):
-    #     repository_data = self.db.get_repository(repository_id)
-    #     return Repository(repository_data)
-
-
-    def embed_description(self):
-        embedding = self._model.encode(self.description+" "+self.languages)
-        # save embedding to database
-        return embedding
-    
     def get_user_matches(self):
-        repository_embedding = self.embed_description()
+        repository_embedding = embed_repository_text(self, self.db)
 
-        all_users = [User(i, self.db) for i in self.db.get_users()]
+        all_users = self.db.get_users()
 
-        user_embeddings = pd.DataFrame([i.embed_description() for i in all_users], index=[i.id for i in all_users])
+        user_embeddings = pd.DataFrame([embed_user_text(i, self.db) for i in all_users], index=[i.id for i in all_users])
 
-        # print(user_embeddings)
         repo_to_users_similarity = cosine_similarity([repository_embedding], user_embeddings)
 
-        # return a dataframe of user ids and their similarity to the repository
-        return pd.DataFrame(repo_to_users_similarity, columns=user_embeddings.index.tolist(), index=[self.id])
+        # return a dataframe  with one column where rows are each user and it's associated score
+        return pd.DataFrame(repo_to_users_similarity.T, index=user_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
+
+    def get_description(self):
+        return self.description+" "+(self.languages or "")
+
+
+
+def embed_user_text(user: User, db: Database):
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+
+    embedding = model.encode(user.get_description())
+    db.save_user_description_embedding(user.id, embedding)
+    return embedding
+
+
+def embed_repository_text(repository: Repository, db: Database):
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    embedding = model.encode(repository.get_description())
+    db.save_repository_description_embedding(repository.id, embedding)
+    return embedding
+
 
 
 
 
 class TextParser:
 
-    def __init__(self, model: SentenceTransformer):
+    def __init__(self, model: SentenceTransformer, database: Database):
         self._model = model
+        self._db = database
 
 
     def remove_stopwords(self, text):
@@ -133,34 +136,15 @@ class TextParser:
         # uses tfidf to extract keywords from a list of words
         
         tfidf_vectorizer = TfidfVectorizer(stop_words='english')
-        tfidf_matrix = tfidf_vectorizer.fit_transform([text])
-        feature_names = tfidf_vectorizer.get_feature_names_out()
-        print(feature_names)
-        dense = tfidf_matrix.todense()
-        denselist = dense.tolist()
-        df = pd.DataFrame(denselist, columns=feature_names)
-        df = df.transpose()
-        df = df.sort_values(by=0, ascending=False)
-        df = df[df[0] > 0]
-        return df.index.tolist()
+        documents = pd.DataFrame(self._db.get_repositories())
         
         
-
-
-def get_recommendations_by_desc(user_id=None, repository_id=None):
-
-    db = Database()
-
-    if (repository_id):
-        return Repository(db.get_repository(repository_id), db).get_user_matches()
-    
-    elif (user_id):
-        return User(db.get_user(user_id), db).get_repository_matches()
-
 
 
 
 if __name__ == "__main__":
+    
+    db = Database()
 
     # model = SentenceTransformer('all-MiniLM-L6-v2')
     # sss = SemanticSimilaritySearch(model)
@@ -170,6 +154,6 @@ if __name__ == "__main__":
     # keywords = sss.extract_keywords(desc)
     # print(keywords)
 
-    print(get_recommendations_by_desc(repository_id="repository5"))
-    print(get_recommendations_by_desc(user_id="user3"))
+    print(Repository(db.get_repository("repository5"), db).get_user_matches())
+    print(User(db.get_user("user3"), db).get_repository_matches())
 
