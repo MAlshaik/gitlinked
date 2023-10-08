@@ -6,10 +6,10 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from content_recommender import RecommendableItem, ContentRecommender
 
 nltk.download('punkt')
 nltk.download('stopwords')
-
 
 
 class Database:
@@ -30,90 +30,60 @@ class Database:
         pass
     
     def get_users(self):
-        return sample_users
+        return [User(i) for i in sample_users]
     
     def get_repositories(self):
-        return sample_repositories
+        return [Repository(i) for i in sample_repositories]
 
 
 
-
-
-class User:
-    def __init__(self, user_data: object, db: Database):
-        print("user_data", user_data)
+class User(RecommendableItem):
+    def __init__(self, user_data: object):
         self.id = user_data["id"]
         self.description = user_data["description"]
-        self.skills = user_data["skills"]
+        self.skills = user_data.get("skills") or ""
 
-        self.db = db
+        text = self.description + " " + self.skills
 
-
-    def get_repository_matches(self):
-        user_embedding =  embed_user_text(self, self.db)
-
-        all_repositories = self.db.get_repositories()
-
-        repository_embeddings = pd.DataFrame([embed_repository_text(i, self.db) for i in all_repositories], index=[i.id for i in all_repositories])
-
-        user_to_repo_similarity = cosine_similarity([user_embedding], repository_embeddings)
-        
-        # return a dataframe with one column where rows are each repository and it's associated score
-        return pd.DataFrame(user_to_repo_similarity.T, index=repository_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
+        super().__init__(self.id, text, "user")
 
 
 
-    def get_description(self):
-        return self.description+" "+self.skills
-
-
-
-class Repository:
-    def __init__(self, repo_data: object, db: Database):
-        print(repo_data)
+class Repository(RecommendableItem):
+    def __init__(self, repo_data: object):
         self.id = repo_data["id"]
         self.description = repo_data["description"]
         self.languages = repo_data["Languages"]
+        
+        text = self.description+" "+(self.languages or "")
 
-        self.db = db
-
-
-    def get_user_matches(self):
-        repository_embedding = embed_repository_text(self, self.db)
-
-        all_users = self.db.get_users()
-
-        user_embeddings = pd.DataFrame([embed_user_text(i, self.db) for i in all_users], index=[i.id for i in all_users])
-
-        repo_to_users_similarity = cosine_similarity([repository_embedding], user_embeddings)
-
-        # return a dataframe  with one column where rows are each user and it's associated score
-        return pd.DataFrame(repo_to_users_similarity.T, index=user_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
-
-    def get_description(self):
-        return self.description+" "+(self.languages or "")
+        super().__init__(self.id, text, "repository")
 
 
 
-def embed_user_text(user: User, db: Database):
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-
-    embedding = model.encode(user.get_description())
-    db.save_user_description_embedding(user.id, embedding)
-    return embedding
-
-
-def embed_repository_text(repository: Repository, db: Database):
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    embedding = model.encode(repository.get_description())
-    db.save_repository_description_embedding(repository.id, embedding)
-    return embedding
+def recommend_repos_for_user(user: User, db: Database):
+    user_embedding =  ContentRecommender().embed_item_text(user)
+    all_repositories = db.get_repositories()
+    repository_embeddings = pd.DataFrame([ContentRecommender().embed_item_text(i) for i in all_repositories], index=[i.id for i in all_repositories])
+    user_to_repo_similarity = cosine_similarity([user_embedding], repository_embeddings)
+    
+    # return a dataframe with one column where rows are each repository and it's associated score
+    return pd.DataFrame(user_to_repo_similarity.T, index=repository_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
 
 
 
+def recommend_users_for_repo(repository: Repository, db: Database):
+    repository_embedding = ContentRecommender().embed_item_text(repository)
+    all_users = db.get_users()
+    user_embeddings = pd.DataFrame([ContentRecommender().embed_item_text(i) for i in all_users], index=[i.id for i in all_users])
+    repo_to_users_similarity = cosine_similarity([repository_embedding], user_embeddings)
+
+    # return a dataframe  with one column where rows are each user and it's associated score
+    return pd.DataFrame(repo_to_users_similarity.T, index=user_embeddings.index, columns=["match_score"]).sort_values("match_score", ascending=False)
 
 
-class TextParser:
+
+class ContentBasedRecommendation:
 
     def __init__(self, model: SentenceTransformer, database: Database):
         self._model = model
@@ -154,6 +124,6 @@ if __name__ == "__main__":
     # keywords = sss.extract_keywords(desc)
     # print(keywords)
 
-    print(Repository(db.get_repository("repository5"), db).get_user_matches())
-    print(User(db.get_user("user3"), db).get_repository_matches())
+    print(recommend_users_for_repo(Repository(db.get_repository("5")), db))
+    print(recommend_repos_for_user(User(db.get_user("3")), db))
 
