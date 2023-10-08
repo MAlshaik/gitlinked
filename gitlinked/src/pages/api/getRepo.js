@@ -1,6 +1,6 @@
 import supabase from "../supabaseClient";
 
-export default async function getUser(req, res) {
+export default async function getRepo(req, res) {
   
   // Check if the method is POST
   if (req.method !== 'POST') {
@@ -8,13 +8,12 @@ export default async function getUser(req, res) {
   }
 
   const { data, error } = await supabase
-    .from('users')
+    .from('repo')
     .select('*')
-    .eq('id', req.body.id)
-    .single();
+    .eq('repo_name', req.body.repo_name);
 
   if (error) {
-    console.error('Error fetching user:', error);
+    console.error('Error fetching repo:', error);
     return res.status(500).json({ error: error.message });
   }
 

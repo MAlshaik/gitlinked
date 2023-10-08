@@ -21,7 +21,7 @@ export default (req, res) =>
             async signIn(user, account, profile) {
                 console.log("User Object:", user.profile.login);
                 
-                const existingUser = await getUser(user.user.email);
+                const existingUser = await getUser(user.user.id);
         
                 if (!existingUser) {
                   await addUser(user.user.id, user.profile.login, user.user.email);
