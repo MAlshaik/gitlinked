@@ -5,6 +5,8 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { NextRequest, NextResponse } from "next/server";
 import { FormEvent } from 'react'
+import Link from 'next/link';
+import { useSession } from "next-auth/react"
 
 export default function Home() {
   const { push } = useRouter();
@@ -14,12 +16,26 @@ export default function Home() {
 
   async function onSubmit(event) {
     event.preventDefault()
-
     const search = event.target[0]['value']
+
+
+    
 
     if(search){
       push(`/main`)
     }
+
+    // const { data: session, status } = useSession()
+    
+    // if (status == "authenticated") {
+    //   return <p>Signed in as {session.user.email}</p>
+    // }
+    // else
+    // {
+      
+    // }
+
+    
   }
 
   return (
@@ -44,6 +60,9 @@ export default function Home() {
           </span> */}
       </button>
       </form>
+      <p>
+        Please remember to sign in first! -Creators
+      </p>
       </main>
 
     </>
