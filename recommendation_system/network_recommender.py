@@ -56,6 +56,8 @@ def get_most_similar_nodes(all_nodes: t.List[GraphNode], all_relationships: t.Li
 
     node_id = GraphNode(item_id, item_type).id
 
+    
+
     return model.wv.most_similar(node_id, topn=topn)
     
 

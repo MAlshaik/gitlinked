@@ -44,7 +44,7 @@ def get_all_relationships(db: SupabaseNetworkDatabase) -> t.List[GraphRelationsh
 
 
 
-def find_close_items(db: SupabaseNetworkDatabase, item_id, item_type, top_n=10) -> t.Tuple[pd.DataFrame, pd.DataFrame]):
+def find_close_items(db: SupabaseNetworkDatabase, item_id, item_type, top_n=10) -> t.Tuple[pd.DataFrame, pd.DataFrame]:
 
     most_similar_nodes = get_most_similar_nodes(
         get_all_nodes(db),
