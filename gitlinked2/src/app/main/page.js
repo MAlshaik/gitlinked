@@ -147,8 +147,36 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-      prompt = window.location.href.split("=")[1]
-      console.log(prompt)
+      async function fetchPrompt() {
+        prompt_text = window.location.href.split("=")[1]
+      console.log(prompt_text)
+
+      prompt = {
+        "prompt": prompt_text,
+      }
+
+        const res = await fetch('/api/searchGPT', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(prompt),
+        })
+  
+        const data = await res.json();
+        console.log(data)
+      }
+
+      // const res = await fetch('/api/route-name', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(prompt),
+      // })
+
+      // const data = await res.json();
+      // console.log(data)
 
         const drawer = document.getElementById("drawer-contact");
         const close = document.getElementById("close");

@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useSession } from "next-auth/react"
 
 export default function Home() {
+  const { push } = useRouter();
 
   useEffect(() => {
     var head = document.getElementsByTagName("head")[0]
