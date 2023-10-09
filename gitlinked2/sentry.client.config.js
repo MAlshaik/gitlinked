@@ -4,7 +4,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 
-consol.log("eillo i am sentry client");
+console.log("eillo i am sentry client");
 
 Sentry.init({
   dsn: "https://a9d7f8c29a27f127683f198708a72f5d@o4506017113243648.ingest.sentry.io/4506017123991552",
