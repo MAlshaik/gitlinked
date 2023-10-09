@@ -19,6 +19,9 @@ export default function Home() {
     event.preventDefault()
     const search = event.target[0]['value']
 
+
+    
+
     if(search){
       push(`/main?prompt=${search}`)
     }
