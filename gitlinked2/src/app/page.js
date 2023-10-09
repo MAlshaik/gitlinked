@@ -12,6 +12,8 @@ export default function Home() {
   const { push } = useRouter();
 
   useEffect(() => {
+    var head = document.getElementsByTagName("head")[0]
+    head.getElementsByTagName("title")[0].innerHTML = "GitLinked"
   }, []);
 
   async function onSubmit(event) {
