@@ -5,6 +5,7 @@ import Script from "next/script";
 import { useEffect } from 'react';
 import Header from '@/components/header'
 import Drawer from '@/components/drawer';
+import { useRouter } from 'next/navigation'
 
 var fire = 0
 
@@ -146,6 +147,8 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
+      prompt = window.location.href.split("=")[1]
+      console.log(prompt)
 
         const drawer = document.getElementById("drawer-contact");
         const close = document.getElementById("close");
@@ -163,7 +166,6 @@ export default function Home() {
         close.addEventListener("click", () => {
             drawer.classList.add("-translate-x-full");
             drawer.classList.remove("-translate-x-0");
-            console.log(drawer.classList)
           }
         );
       }, []);
@@ -174,13 +176,15 @@ export default function Home() {
           id: "cb1",
           name: "GitLinked",
           description: "Github based project built in Hackathon",
-          url: ""
+          url: "",
+          user_url: "https://images.unsplash.com/photo-1626071466175-79ab723e9fdd?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=759&q=80",
         },
         {
           id: "cb2",
           name: "GitLinked",
           description: "Github based project built in Hackathon",
-          url: ""
+          url: "",
+          user_url: "https://images.unsplash.com/photo-1626071466175-79ab723e9fdd?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=759&q=80",
         }
       ]
 
@@ -194,7 +198,6 @@ export default function Home() {
         <label for="${repo.id}" class="tab__label">${repo.name}</label>
         <div class="tab__content">
           <p>${repo.description}</p>
-        </div>
         </div>
         `;
       });

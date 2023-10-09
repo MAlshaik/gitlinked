@@ -9,7 +9,6 @@ import Link from 'next/link';
 import { useSession } from "next-auth/react"
 
 export default function Home() {
-  const { push } = useRouter();
 
   useEffect(() => {
     var head = document.getElementsByTagName("head")[0]
@@ -24,18 +23,8 @@ export default function Home() {
     
 
     if(search){
-      push(`/main`)
+      push(`/main?prompt=${search}`)
     }
-
-    // const { data: session, status } = useSession()
-    
-    // if (status == "authenticated") {
-    //   return <p>Signed in as {session.user.email}</p>
-    // }
-    // else
-    // {
-      
-    // }
 
     
   }
