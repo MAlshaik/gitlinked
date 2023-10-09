@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-const { spawn } = require('child_process');
+
 export async function POST(req) {
   const body = await req.json();
   /*
@@ -7,29 +7,22 @@ export async function POST(req) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
   */
-    const pythonProcess = spawn('python', ['openai_script.py', '--prompt', body.prompt, '--id', body.id]);
-
-    let pythonOutput = '';
-
-    pythonProcess.stdout.on('data', (data) => {
-        // Append data from Python script to pythonOutput variable
-        pythonOutput += data.toString();
-    });
-
-    pythonProcess.stderr.on('data', (data) => {
-        // Handle any errors
-        console.error(`Python error: ${data}`);
-    });
-
-    pythonProcess.on('close', (code) => {
-        if (code !== 0) {
-            console.log(`Python script exited with code ${code}`);
-            return NextResponse.json({ error: `Python script exited with code ${code}`, pythonOutput: pythonOutput });
-        } else {
-            return NextResponse.json({ message: 'Script executed successfully', pythonOutput: pythonOutput });
-        }
-    });
-  
+    await fetch('', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    })
+    .then(response => response.json)
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch(error => {
+      console.error(error);
+      return NextResponse.json({message:'Failed'});
+    })
+  return NextResponse.json({message : 'success'});
   
   }
   

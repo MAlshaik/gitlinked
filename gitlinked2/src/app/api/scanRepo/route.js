@@ -3,26 +3,27 @@ import { NextResponse } from 'next/server';
 export async function POST(req) {
     const body = await req.json();
 
-    const pythonProcess = spawn('python', ['get_contributors.py', '--search_prompt', body.prompt]);
+    //remember body.name
 
-    let pythonOutput = '';
+    fetch('', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json' // Set the content type to JSON
+          },
+          body: JSON.stringify(body) // Convert the data to a JSON string
+        })
+        .then(response => response.json()) // Parse the JSON response
+        .then(data => {
+          console.log('Success:', data); // Handle the response data
+          return NextResponse.json({message:"success"});
+        })
+        .catch(error => {
+          console.error('Error:', error); // Handle errors
+          return NextResponse.json({message:'fail'});
+        });
+        
+    
 
-    pythonProcess.stdout.on('data', (data) => {
-        // Append data from Python script to pythonOutput variable
-        pythonOutput += data.toString();
-    });
+}    
+    
 
-    pythonProcess.stderr.on('data', (data) => {
-        // Handle any errors
-        console.error(`Python error: ${data}`);
-    });
-
-    pythonProcess.on('close', (code) => {
-        if (code !== 0) {
-            console.log(`Python script exited with code ${code}`);
-            return NextResponse.json({ error: `Python script exited with code ${code}`, pythonOutput: pythonOutput });
-        } else {
-            return NextResponse.json({ message: 'Script executed successfully', pythonOutput: pythonOutput });
-        }
-    });
-}

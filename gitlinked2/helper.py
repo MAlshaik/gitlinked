@@ -27,7 +27,7 @@ def getUserInfo(github_username):
     # Create an empty list to hold the repository data
     repos_data = {}
     for n, repository in enumerate(data):
-        
+        print(repository)
         repository_name = repository["name"]
         repository_description = repository["description"]
         if not repository_description:

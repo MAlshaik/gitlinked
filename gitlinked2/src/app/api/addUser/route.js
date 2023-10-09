@@ -3,16 +3,15 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
     const body = await req.json()
-    /*
+    
     if (req.method !== 'POST') {
       return NextResponse.send({ error: 'Method not allowed' });
     }
-    */
     
     const { data, error } = await supabase
-      .from('users')
+      .from('contributors')
       .insert([
-        {id: body.id,  username:body.username},
+        {id: body.id, repos:body.repos, username:body.username},
       ]);
   
     if (error) {

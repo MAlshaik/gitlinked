@@ -25,27 +25,29 @@ export const authOptions = {
 
                 if (!existingUser) {
                   await addUser(user.user.id, user.profile.login, user.user.email);
-                  const pythonProcess = spawn('python', ['get_info.py', '--id', user.user.id, '--username', user.profile.login]);
                   
-                  pythonProcess.stdout.on('data', (data) => {
-                    // Handle stdout data (output from the Python script)
-                    console.log(data.toString());
-                    // If you still want to write this data to output.txt, use the fs module.
-                });
-                
-                pythonProcess.stderr.on('data', (data) => {
-                    // Handle any errors
-                    console.error(`Python error: ${data}`);
-                });
-                
-                pythonProcess.on('close', (code) => {
-                    if (code !== 0) {
-                        console.log(`Python script exited with code ${code}`);
-                    }
-                });
-                
-                
-                }
+                  const body = {
+                    'id': user.user.id,
+                    'username': user.profile.login
+                  }
+
+
+                  fetch('', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json' // Set the content type to JSON
+                    },
+                    body: JSON.stringify(body) // Convert the data to a JSON string
+                  })
+                  .then(response => response.json()) // Parse the JSON response
+                  .then(data => {
+                    console.log('Success:', data); // Handle the response data
+                  })
+                  .catch(error => {
+                    console.error('Error:', error); // Handle errors
+                  });
+                  
+            }
                 console.log(`Signed in as ${user.profile.login}`);
                 return true; // return true to continue the sign-in process, otherwise it will be stopped
               },
