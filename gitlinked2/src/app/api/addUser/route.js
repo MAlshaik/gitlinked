@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 
 export async function POST(req){
+
+    Sentry.captureMessage('hello from addUser');
     const body = await req.json()
     /*
     if (req.method !== 'POST') {
@@ -10,7 +12,6 @@ export async function POST(req){
     }
     */
     
-    Sentry.captureMessage('hello from addUser');
     
     const { data, error } = await supabase
       .from('users')
